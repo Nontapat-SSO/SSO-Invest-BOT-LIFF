@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>LIFF Email Test</title>
+  <!-- Load LIFF SDK -->
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+</head>
+<body>
+  <h2>Test LIFF App</h2>
+  <div id="profile"></div>
+
+  <h3>Enter your email:</h3>
+  <input type="text" id="email" placeholder="example@email.com">
+  <button onclick="verifyEmail()">Submit</button>
+
+  <p id="result"></p>
+
+  <script>
+    async function main() {
+      // Initialize LIFF with your LIFF ID
+      await liff.init({ liffId: "2009475865-FD9LSYoM" });
+
+      // Ensure user is logged in
+      if (!liff.isLoggedIn()) {
+        liff.login();
+      }
+
+      // Get user profile
+      const profile = await liff.getProfile();
+      document.getElementById("profile").innerHTML =
+        `<p><strong>LINE Display Name:</strong> ${profile.displayName}</p>
+         <p><strong>User ID:</strong> ${profile.userId}</p>`;
+    }
+
+    function verifyEmail() {
+      const email = document.getElementById("email").value;
+      if (email) {
+        document.getElementById("result").innerText =
+          "You entered: " + email + " (no backend check yet)";
+      } else {
+        document.getElementById("result").innerText =
+          "Please enter an email.";
+      }
+    }
+
+    main();
+  </script>
+</body>
+</html>
