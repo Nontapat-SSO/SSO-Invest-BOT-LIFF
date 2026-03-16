@@ -140,7 +140,7 @@
 
   <script>
     let userProfile = null;
-
+  
     async function main() {
       try {
         document.getElementById("profile").innerHTML = `
@@ -149,53 +149,19 @@
             <p class="text-lg font-medium">Initializing secure investment connection...</p>
           </div>
         `;
-
+  
         await liff.init({ liffId: "2009475865-FD9LSYoM" });
-
+  
         if (!liff.isLoggedIn()) {
           liff.login();
+          return; // stop here, LIFF will reload after login
         }
-
+  
         userProfile = await liff.getProfile();
         document.getElementById("profile").innerHTML = `
           <div class="profile-info">
-            <svg class="investment-bot" viewBox="0 0 80 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <!-- Investment Bot Head - Navy/Gold Theme -->
-              <circle cx="40" cy="25" r="20" fill="#1e3a5f" stroke="#ffd700" stroke-width="2"/>
-              
-              <!-- Glowing Eyes -->
-              <circle class="bot-eyes" cx="30" cy="22" r="4" fill="#ffd700"/>
-              <circle class="bot-eyes" cx="50" cy="22" r="4" fill="#ffd700"/>
-              
-              <!-- Investment Glasses -->
-              <ellipse cx="40" cy="22" rx="15" ry="3" fill="none" stroke="#ffd700" stroke-width="1.5" stroke-linecap="round"/>
-              
-              <!-- Antenna with Gold Top -->
-              <line x1="40" y1="5" x2="40" y2="15" stroke="#1e3a5f" stroke-width="3" stroke-linecap="round"/>
-              <circle cx="40" cy="3" r="3" fill="#ffd700"/>
-              
-              <!-- Body - Navy Suit -->
-              <rect x="25" y="45" width="30" height="35" rx="10" fill="#0a1f44" stroke="#ffd700" stroke-width="2"/>
-              
-              <!-- Gold Tie -->
-              <path d="M35 50 L40 65 L45 50 Z" fill="#ffd700"/>
-              
-              <!-- Arms -->
-              <rect x="15" y="50" width="10" height="25" rx="5" fill="#1e3a5f" stroke="#ffd700" stroke-width="1.5"/>
-              <rect x="55" y="50" width="10" height="25" rx="5" fill="#1e3a5f" stroke="#ffd700" stroke-width="1.5"/>
-              
-              <!-- Briefcase -->
-              <rect x="58" y="70" width="15" height="12" rx="3" fill="#ffd700" stroke="#0a1f44" stroke-width="1.5"/>
-              <rect x="59" y="71" width="13" height="1" fill="#0a1f44"/>
-              
-              <!-- Legs -->
-              <rect x="30" y="80" width="8" height="15" rx="4" fill="#1e3a5f"/>
-              <rect x="42" y="80" width="8" height="15" rx="4" fill="#1e3a5f"/>
-            </svg>
-            <div class="profile-details ml-4">
-              <h3>${userProfile.displayName}</h3>
-              <p>ID: ${userProfile.userId.slice(-8)}</p>
-            </div>
+            <h3>${userProfile.displayName}</h3>
+            <p>ID: ${userProfile.userId.slice(-8)}</p>
           </div>
         `;
       } catch (error) {
@@ -204,64 +170,63 @@
         `;
       }
     }
-
+  
     async function verifyEmail() {
       const email = document.getElementById("email").value;
       const resultEl = document.getElementById("result");
-
+  
       if (!email) {
         resultEl.textContent = 'Please enter your SSO Email.';
         resultEl.className = 'error';
         return;
       }
-
+  
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(email)) {
         resultEl.textContent = '⚠ Please enter a valid email address.';
         resultEl.className = 'error';
         return;
       }
-
-      // Send to Google Apps Script backend
-      fetch("https://script.google.com/macros/s/AKfycbyNkowzoGMhz33rw6Ht2v-6PJWHrLje_5uIZzdbFtd7-tej0eNBXS6Op3Mr-h2n7J28uA/exec", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          email: email,
-          userId: userProfile.userId,
-          displayName: userProfile.displayName
-        })
-      })
-      .then(res => {
-        console.log("Response status:", res.status);
-        return res.text(); // get raw response
-      })
-      .then(text => {
+  
+      try {
+        const res = await fetch("https://script.google.com/macros/s/AKfycbyNkowzoGMhz33rw6Ht2v-6PJWHrLje_5uIZzdbFtd7-tej0eNBXS6Op3Mr-h2n7J28uA/exec", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            email: email,
+            userId: userProfile.userId,
+            displayName: userProfile.displayName
+          })
+        });
+  
+        const text = await res.text();
         console.log("Raw response:", text);
+  
+        let data;
         try {
-          const data = JSON.parse(text);
-          if (data.status === "success") {
-            resultEl.textContent = `✓ Verified: ${email}`;
-            resultEl.className = 'success';
-          } else {
-            resultEl.textContent = `⚠ ${data.message}`;
-            resultEl.className = 'error';
-          }
+          data = JSON.parse(text);
         } catch (e) {
-          console.error("JSON parse error:", e);
           resultEl.textContent = 'Server did not return valid JSON.';
           resultEl.className = 'error';
+          return;
         }
-      })
-      .catch(err => {
+  
+        if (data.status === "success") {
+          resultEl.textContent = `✓ Verified: ${email}`;
+          resultEl.className = 'success';
+        } else {
+          resultEl.textContent = `⚠ ${data.message}`;
+          resultEl.className = 'error';
+        }
+      } catch (err) {
         console.error("Fetch error:", err);
         resultEl.textContent = 'Error connecting to server.';
         resultEl.className = 'error';
-      });
-
+      }
     }
-
+  
     main();
   </script>
+  
 </body>
 </html>
