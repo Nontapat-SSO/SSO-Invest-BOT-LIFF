@@ -232,21 +232,33 @@
           displayName: userProfile.displayName
         })
       })
-      .then(res => res.json())
-      .then(data => {
-        if (data.status === "success") {
-          resultEl.textContent = `✓ Verified: ${email}`;
-          resultEl.className = 'success';
-        } else {
-          resultEl.textContent = `⚠ ${data.message}`;
+      .then(res => {
+        console.log("Response status:", res.status);
+        return res.text(); // get raw response
+      })
+      .then(text => {
+        console.log("Raw response:", text);
+        try {
+          const data = JSON.parse(text);
+          if (data.status === "success") {
+            resultEl.textContent = `✓ Verified: ${email}`;
+            resultEl.className = 'success';
+          } else {
+            resultEl.textContent = `⚠ ${data.message}`;
+            resultEl.className = 'error';
+          }
+        } catch (e) {
+          console.error("JSON parse error:", e);
+          resultEl.textContent = 'Server did not return valid JSON.';
           resultEl.className = 'error';
         }
       })
       .catch(err => {
+        console.error("Fetch error:", err);
         resultEl.textContent = 'Error connecting to server.';
         resultEl.className = 'error';
-        console.error(err);
       });
+
     }
 
     main();
