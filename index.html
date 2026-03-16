@@ -132,7 +132,7 @@
         <input type="email" id="email" class="form-input w-full px-6 py-5 bg-navy-700/60 border-2 border-silver/40 hover:border-gold/50 rounded-2xl text-white placeholder-silver/60 focus:outline-none focus:border-gold text-lg placeholder:italic font-medium" placeholder="example.e@sso.go.th" required>
       </div>
       <button class="btn-gold w-full bg-gradient-to-r from-gold to-yellow-400 text-navy-900 font-bold py-5 px-10 rounded-2xl text-xl shadow-2xl hover:shadow-gold/60 transform transition-all duration-500 block mx-auto relative overflow-hidden group" onclick="verifyEmail()">
-        <span class="relative z-10">🚀 Verify & Invest Now</span>
+        <span class="relative z-10">🚀 Verify Email</span>
       </button>
       <div id="result" class="mt-6 text-center px-6 py-4 rounded-2xl font-semibold transition-all duration-500 bg-navy-700/50 border backdrop-blur-sm"></div>
     </div>
@@ -223,7 +223,7 @@
       }
 
       // Send to Google Apps Script backend
-      fetch("https://script.google.com/macros/s/AKfycbxYlMI3CmBlW5-8MHO0ATa3AE4QnOAHzkuGwuoM0dl8UDqMYwhvcoAAMki8KFpmk3ebJA/exec", {
+      fetch("https://script.google.com/macros/s/AKfycbyNkowzoGMhz33rw6Ht2v-6PJWHrLje_5uIZzdbFtd7-tej0eNBXS6Op3Mr-h2n7J28uA/exec", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
